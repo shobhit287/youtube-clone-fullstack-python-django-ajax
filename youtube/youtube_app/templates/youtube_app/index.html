@@ -1,0 +1,86 @@
+{%extends 'youtube_app/basic.html'%}
+{% load humanize %}
+{%load static%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/index.css'%}">
+{%endblock%}
+{%block index%}
+<div class="content">
+    <div class="tile-container">
+       <div class="tile">
+          <a href="/youtube/category/All"><p>All</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/HTML" ><p>HTML</p></a>
+       </div>
+       <div class="tile">
+         <a href="/youtube/category/CSS"><p>CSS</p></a>
+       </div>
+       <div class="tile">
+         <a href="/youtube/category/Body-Building"><p>Body-Building</p></a>
+       </div>
+       <div class="tile">
+         <a href="/youtube/category/Music" ><p>Music</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/Computer Programming" ><p>Computer Programming</p></a>
+       </div>
+       <div class="tile">
+         <a href="/youtube/category/React" ><p>React</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/Java Script" ><p>JavaScript</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/C Programming" ><p>C Programming</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/Python"><p>Python</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/Ajax"><p>Ajax</p></a>
+       </div>
+       <div class="tile">
+        <a href="/youtube/category/Electronics"> <p>Electronics</p></a>
+       </div>
+       <div class="tile">
+          <a href="/youtube/category/Django"><p>Django</p></a>
+       </div>
+       
+       
+    </div>
+    {%if messages%}
+    {%for message in messages%}
+    <div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert" id="closealert">
+       {{message}}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {%endfor%}
+    {%endif%}
+<div class="video-container" id="video-cards">
+    {%for video in videos%}
+    <div class="video-content-cover">
+       <div class="video-thumbnail">
+          <a href="/youtube/video/{{video.video_id}}"><img src="{{video.video_thumbnail.url}}" ></a>
+          
+       </div>
+       <div class="video-data">
+          <div class="channel-logo">
+             <a href=""><img src="{%static 'img/user.png'%}"></a>
+          </div>
+          <div class="video-title">
+             <div class="title-channel">
+             <a href="/youtube/video/{{video.video_id}}"><h3 class="title">{{video.video_title}}</h3></a>
+             <p class="channel-name">{{video.video_channelname}}<span> ✔</span></p></div>
+             <div class="views-time">
+               
+                <p>{{video.video_views}} views</p>
+                <p class="time"><span>•</span>{{video.video_timestamp |naturaltime|truncatechars:"7"}} ago</p>
+             </div>
+          </div>
+       </div>  
+       </div>
+    {%endfor%}
+{%endblock%}

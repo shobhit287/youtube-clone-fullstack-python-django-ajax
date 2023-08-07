@@ -1,0 +1,73 @@
+{%extends 'youtube_app/basic.html'%}
+{%load static%}
+{%load humanize%}
+{%block title%}{{video.video_title}}{%endblock%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/playback.css'%}">
+{%endblock%}
+
+{%block user_section%}
+<div class="content-playback">
+    
+    <div class="left-content">
+     <div id="alert-ajax">
+ 
+    </div>
+     
+         <div class="playback-window">
+     <video id="video-player"preload="metadata" controls autoplay crossorigin playsinline poster="{{video.video_thumbnail.url}}">
+         <source src="{{video.video_videofile.url}}?v={{ timestamp }}" type="video/mp4">
+     </video>
+ </div>
+   <div class="video-info">
+     <p class="video-info-title">{{video.video_title}}</p>
+     <div class="user-playback-data">
+         <div class="user-playback-channel-logo">
+             <img src="{%static 'img/user.png'%}">
+             <p>{{video.video_channelname}}</p>
+             <button class="subscribe"><i class="fa-solid fa-bell"></i>Subscribed</button>
+         </div>
+         <div class="like-dislike" id="ajax-like-dislike">
+             <a href="/youtube/like/{{video.video_id}}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like"></i>Like&nbsp; {{total_like}}</a>
+             <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike"></i>Dislike</a>
+         </div>
+     <div class="watch-share">
+         <button class="share"><i class="fa-solid fa-share"></i>Share</button>
+         <a href="/youtube/watchlater/{{video.video_id}}" onclick="watchlater('/youtube/watchlater/{{video.video_id}}')"><button class="watch-later" id="watch-button"><i class="fa-solid fa-clock"></i>Watch Later</button></a>
+     </div>
+     </div>
+ 
+     <div class="description">
+         <div class="playback-time-stamp">
+         <p>{{video.video_views}} views</p>
+         <p>{{video.video_timestamp|date:"d F, Y"}}</p>
+         </div>
+         <p>{{video.video_description}}</p>
+     </div>
+   </div>
+    </div>
+ 
+ <div class="right-meta">
+ {%for right_video in right_videos%}
+ <div class="right-content">
+ <div class="img-right">
+     <a href="/youtube/video/{{right_video.video_id}}" style="cursor:pointer;"><img src="{{right_video.video_thumbnail.url}}" ></a>
+     <p class="duration">{{right_video.video_duration}}</p>
+ </div>
+ <div class="video-meta">
+     <div class="right-video-title">
+         <a href="/youtube/video/{{right_video.video_id}}"><p>{{right_video.video_title|truncatechars:50 }}</p></a>
+     </div>
+     <div class="right-video-channel"><p>{{right_video.video_channelname}} <span> ✔</span></p></div>
+     <div class="right-video-time">
+         <p>{{right_video.video_views}} views</p>
+         <p>{{right_video.video_timestamp|naturaltime}}</p>
+     </div>
+ </div>
+ 
+ </div>
+ {%endfor%}
+ </div>
+ </div>
+
+{%endblock%}

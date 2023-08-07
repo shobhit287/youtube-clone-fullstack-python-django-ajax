@@ -1,0 +1,428 @@
+{%extends 'youtube_app/basic.html'%}
+{%load static%}
+{%block title%}{{video.video_title}}{%endblock%}
+{%load humanize%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/playback.css'%}">
+<link href="https://vjs.zencdn.net/8.3.0/video-js.css" rel="stylesheet" />
+{%endblock%}
+{%block playback%}
+
+<div class="content-playback">
+    
+   <div class="left-content">
+    
+    
+        <div class="playback-window">
+    <video id="video-player"preload="metadata" controls autoplay crossorigin playsinline poster="{{video.video_thumbnail.url}}">
+        <source src="{{video.video_videofile.url}}?v={{ timestamp }}" type="video/mp4">
+    </video>
+</div>
+  <div class="video-info">
+    <p class="video-info-title">{{video.video_title}}</p>
+    <div class="user-playback-data">
+        <div class="user-playback-channel-logo">
+            <img src="{%static 'img/user.png'%}">
+            <p>{{video.video_channelname}}</p>
+            <button class="subscribe"><i class="fa-solid fa-bell"></i>Subscribed</button>
+        </div>
+        <div class="like-dislike" id="ajax-like-dislike">
+            <a href="/youtube/like/{{video.video_id}}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like"></i>Like&nbsp; {{total_like}}</a>
+            <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike"></i>Dislike &nbsp; {{total_dislike}}</a>
+        </div>
+    <div class="watch-share">
+        <button class="share"><i class="fa-solid fa-share"></i>Share</button>
+        <a href="/youtube/watchlater/{{video.video_id}}" onclick="watchlater('/youtube/watchlater/{{video.video_id}}')"><button class="watch-later" id="watch-button"><i class="fa-solid fa-clock"></i>Watch Later</button></a>
+    </div>
+    </div>
+    <div id="alert-ajax">
+
+    </div>
+    <div class="description">
+        <div class="playback-time-stamp">
+        <p>{{video.video_views}} views</p>
+        <p>{{video.video_timestamp|date:"d F, Y"}}</p>
+        </div>
+        <p>{{video.video_description}}</p>
+    </div>
+
+    <div class="comment-section">
+        <h5>Comments:</h5>
+    <div class="form-field">
+     <img src="{%static 'img/user.png'%}">
+     <form id="new_comment_user" class="form-field">{%csrf_token%}
+        <input type="text" name="parent-comment" placeholder="Add a Comment...." required>
+        <button type="submit" onclick="new_comment(event)">Comment</button>
+     </form>
+    </div></div>
+
+    <div class="user-comments-field">    
+     {%for parent_comment in parent_comments%}
+      <div class="all-comment-list">
+       <div class="user-logo">
+        <img src="{%static 'img/user.png'%}">
+        </div>
+
+      <div class="user-comment-info">
+        <div class="user-name-comment">
+        <p>@{{parent_comment.user.username}}</p>
+        <p class="comment-ago">{{parent_comment.timestamp|naturaltime|truncatechars:"7"}} ago</p>
+       </div>
+      <div class="main-comments">
+        <p>{{parent_comment.content}}<span><i class="fa-solid fa-trash" onclick="delete_parentcomment('{{parent_comment.id}}',this.closest('.all-comment-list'))"></i></span></p>
+      </div>
+      
+      <div class="reply" >
+        <form id="reply_form" class="reply_form_field">{%csrf_token%}
+            <input type="text" name="reply_content "placeholder="Add a reply....">
+            <input type="hidden" name="parent_id" value="{{parent_comment.id}}">
+            <button type="submit" onclick="reply_comment(event,'{{parent_comment.id}}')" class="btn btn-primary">Reply</button>
+        </form>
+        <div class="reply_section_user_{{parent_comment.id}}" id="reply_section_id_{{parent_comment.id}}">
+            {%for reply in parent_comment.comments_set.all%}
+         <div class="replies_user_{{parent_comment.id}} replies_user">
+            <div class="user-logo">
+                <img src="{%static 'img/user.png'%}">
+                </div>
+                <div class="user-comment-info">
+                    <div class="user-name-comment">
+                    <p>@{{reply.user.username}}</p>
+                    <p class="comment-ago">{{reply.timestamp|naturaltime|truncatechars:"7"}} ago</p>
+                   </div>
+                  <div class="main-comments">
+                    <p>{{reply.content}}<span><i class="fa-solid fa-trash" style="color:#dc3545;" onclick="delete_childcomment('{{reply.id}}',this.closest('.replies_user_{{parent_comment.id}}'))"></i></span></p>
+                  </div></div>
+         </div>
+         {%endfor%}
+     
+         </div>
+
+      </div>
+      
+    </div>
+    
+</div>
+{%endfor%}
+    
+
+</div>
+
+</div>
+
+  </div>
+  
+
+<div class="right-meta">
+{%for right_video in right_videos%}
+<div class="right-content">
+<div class="img-right">
+    <a href="/youtube/video/{{right_video.video_id}}" style="cursor:pointer;"><img src="{{right_video.video_thumbnail.url}}" ></a>
+    <p class="duration">{{right_video.video_duration}}</p>
+</div>
+<div class="video-meta">
+    <div class="right-video-title">
+        <a href="/youtube/video/{{right_video.video_id}}"><p>{{right_video.video_title|truncatechars:50 }}</p></a>
+    </div>
+    <div class="right-video-channel"><p>{{right_video.video_channelname}} <span> ✔</span></p></div>
+    <div class="right-video-time">
+        <p>{{right_video.video_views}} views</p>
+        <p>{{right_video.video_timestamp|naturaltime}}</p>
+    </div>
+</div>
+
+</div>
+{%endfor%}
+</div>
+</div>
+{%endblock%}
+
+{%block script%}
+<script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
+{% if user.is_authenticated %}
+<script>
+  var isAuthenticated = true;
+  var like_status={{like_status|yesno:"true,false"}};
+  var dislike_status={{dislike_status|yesno:"true,false"}};
+</script>
+{% else %}
+<script>
+  var isAuthenticated = false;
+</script>
+{% endif %}
+
+
+
+<script>
+  function btn_likestatus(liked){
+      if(liked){
+        $('#fa-like').css("color","#3EA6FF");
+      }
+      else{
+        $('#fa-like').css("color","#fff");
+      }
+     }
+     function btn_dislikestatus(disliked){
+      if(disliked){
+        $('#fa-dislike').css("color","#3EA6FF");
+      }
+      else{
+        $('#fa-dislike').css("color","#fff");
+      }
+     }
+    if (isAuthenticated){
+     btn_likestatus(like_status);
+     btn_dislikestatus(dislike_status);}
+    
+      function watchlater(url){
+        event.preventDefault();
+        $.ajax({
+            type:'GET',
+            url:url,
+            datatType:'json',
+            success:function(response){
+            if (response.success){
+               $('#watch-button').text('Added To Watch Later').prop ('disabled',true);
+            }
+            else{
+                $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+            }
+            }
+    
+        });
+      }
+      function dislike(event){
+        event.preventDefault();
+        const url="/youtube/dislike/{{video.video_id}}";
+        $.ajax({
+            type:"GET",
+            url:url,
+            dataType:"json",
+            success:function(response){
+                if (response.status==="disliked"){
+                 $('#ajax-like-dislike').html(`<a href="${url}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like"></i>Like&nbsp; ${response.final_like}</a>
+                 <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike" style="color:#3EA6FF;"></i>Dislike &nbsp;${response.final_dislike}</a>`);
+                }
+                else if(response.status==="notdisliked"){
+                    $('#ajax-like-dislike').html(`<a href="${url}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like"></i>Like&nbsp; ${response.final_like}</a>
+                    <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike"></i>Dislike &nbsp;${response.final_dislike}</a>`);
+                }
+                else{
+                    $('#alert-ajax').empty();
+                    $.each(response.messages,function(index,message){
+                    var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+               ${message.message}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              </div>`;
+              $('#alert-ajax').append(message_div);
+                    });
+                }
+             
+            }
+        });
+        
+    
+    }
+    function like(event){
+        event.preventDefault();
+        const url='/youtube/like/{{video.video_id}}';
+        $.ajax({
+            type:"GET",
+            url:url,
+            dataType:"json",
+            success:function(response){
+                if (response.status==="liked"){
+    
+                    $('#ajax-like-dislike').html(`<a href="${url}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like" style="color:#3EA6FF;"></i>Like&nbsp; ${response.final_like}</a>
+                    <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike" ></i>Dislike &nbsp;${response.final_dislike}</a>`);
+    
+                }
+               
+                else if (response.status==="notliked"){
+                    
+                    $('#ajax-like-dislike').html(`<a href="${url}" class="like" id="ajax-like" onclick="like(event)"><i class="fa-solid fa-thumbs-up" id="fa-like"></i>Like&nbsp; ${response.final_like}</a>
+                    <a href="/youtube/dislike/{{video.video_id}}" class="dislike" onclick="dislike(event)"><i class="fa-solid fa-thumbs-down" id="fa-dislike" ></i>Dislike &nbsp;${response.final_dislike}</a>`);
+                }
+    
+    
+                else{
+                    $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+                }
+            }
+    
+        });
+        
+    }
+    function new_comment(event){
+        event.preventDefault();
+        const form = document.getElementById('new_comment_user');
+        const formData = new FormData(form);
+        url='/youtube/comment/{{video.video_id}}'
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:formData,
+            processData:false,
+            contentType:false,
+            success:function(response){
+                if(response.success){
+                   container=document.querySelector('.user-comments-field');
+                 const tempdiv=document.createElement('div');
+                 tempdiv.classList.add('all-comment-list');
+                 tempdiv.innerHTML=`<div class="user-logo">
+                    <img src="{%static 'img/user.png'%}">
+                    </div>
+            
+                  <div class="user-comment-info">
+                    <div class="user-name-comment">
+                    <p>@${response.user}</p>
+                    <p class="comment-ago">${response.timestamp} ago</p>
+                   </div>
+                  <div class="main-comments">
+                    <p>${response.comment}<span><i class="fa-solid fa-trash" onclick="delete_parentcomment('${response.parent_id}',this.closest('.all-comment-list'))"></i></span></p>
+                  </div>
+                  
+                  <div class="reply" >
+                    <form id="reply_form" class="reply_form_field">{%csrf_token%}
+                        <input type="text" name="reply_content "placeholder="Add a reply....">
+                        <input type="hidden" name="parent_id" value="${response.parent_id}">
+                        <button type="submit" onclick="reply_comment(event,${response.parent_id})" class="btn btn-primary">Reply</button>
+                    </form>
+                    <div class="reply_section_user_${response.parent_id}" id="reply_section_id_${response.parent_id}"></div>`
+                    ;
+                 container.prepend(tempdiv);
+                }
+                else{
+                    $('#alert-ajax').empty();
+                    $.each(response.messages,function(index,message){
+                    var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+               ${message.message}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              </div>`;
+              $('#alert-ajax').append(message_div);
+                    });
+                }
+            }
+        });
+    }
+    
+    function reply_comment(event,parent_id){
+        event.preventDefault();
+        const url='/youtube/reply/{{video.video_id}}';
+        const reply_form=document.getElementById('reply_form');
+        const form=new FormData(reply_form);
+    
+        $.ajax({
+         type:"POST",
+         url:url,
+         data:form,
+         processData:false,
+         contentType:false,
+         success:function(response){
+            if(response.success){
+                $(`#reply_section_id_${parent_id}`).prepend(`<div class="replies_user_${response.parent_id}">
+                    <div class="user-logo">
+                        <img src="{%static 'img/user.png'%}">
+                        </div>
+                        <div class="user-comment-info">
+                            <div class="user-name-comment">
+                            <p>@${response.user}</p>
+                            <p class="comment-ago">${response.timestamp} ago</p>
+                           </div>
+                          <div class="main-comments">
+                            <p>${response.comment}<span><i class="fa-solid fa-trash" style="color:#dc3545;" onclick="delete_childcomment(${response.child_id},this.closest('.replies_user_${response.parent_id}'))"></i></span></p>
+                          </div></div></div>`);
+                   
+    
+            }else{
+                $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+            }
+         }
+        });
+    }
+    function delete_parentcomment(parent_id,parentDiv){
+        const url=`/youtube/deletecomment/${parent_id}`;
+        $.ajax({
+         type:"GET",
+         url:url,
+         datatType:"json",
+         success:function(response){
+            if(response.success){
+             parentDiv.remove();
+            }
+            else{
+                $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+            }
+         }
+        });
+    }
+    function delete_childcomment(child_id,parentDiv){
+        const url=`/youtube/deletecomment/child/${child_id}`;
+        $.ajax({
+         type:"GET",
+         url:url,
+         datatType:"json",
+         success:function(response){
+            if(response.success){
+             parentDiv.remove();
+            }
+            else{
+                $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+            }
+         }
+        });
+    }
+    
+
+
+</script>
+{%endblock%}
+

@@ -1,0 +1,90 @@
+{%extends 'youtube_app/basic.html'%}
+{%load static%}
+{%load humanize%}
+{%block title%}{{user.username}}{%endblock%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/user_videos.css'%}">
+{%endblock%}
+{%block user_section%}
+<div class="uservideo-content">
+    <div class="messages">
+    {%if messages%}
+    {%for message in messages%}
+    <div id="alert-ajax">
+   
+     </div>
+     {%endfor%}
+     {%endif%} 
+     </div>
+  
+    
+     <div class="user-videos">
+        <div class="uploaded-videos">
+            <p style="font-size:20px; ">• &nbsp;All Upload Videos By {{user.username}}&nbsp;:</p>
+         </div>
+        {%if videos%}
+    {%for user_videos in videos%}
+
+        <div class="user-video-content"  >
+            
+            <div class="img-video">
+                <a href="/youtube/uservideo/{{user_videos.video_id}}"><img src="{{user_videos.video_thumbnail.url}}"></a>
+                <p>{{user_videos.video_duration}}</p>
+            </div>
+            <div class="right-user-content">
+                <div class="user-content-title">
+                    <a href="/youtube/uservideo/{{user_videos.video_id}}"><p>{{user_videos.video_title}}</p></a>
+                </div>
+                <div class="uservideos-meta-stuff">
+                    <img src="{%static 'img/user.png'%}">
+                    <p>{{user.username}}</p> 
+                    <img class="channel-verify-later" src="{%static 'img/verify.png'%}">
+                </div>
+                <div class="uservideos-meta-stuff-2">
+                    <p>{{user_videos.video_views}} views</p>
+                    <p class="time-later">{{user_videos.video_timestamp|naturaltime|truncatechars:"7" }} ago </p>
+                    <a href="/youtube/uservideo/remove/{{user_videos.video_id}}" onclick="remove_uservideo(event,('/youtube/uservideo/remove/{{user_videos.video_id}}'))"><button type="button" class="btn btn-secondary btn-prevent" >Remove</button></a>
+                </div>
+            </div>  
+        </div>
+        {%endfor%}
+        {%else%}
+        <div class="no-video"><p>Sorry, No videos Found</p></div>
+        <a href="/youtube/user-upload"><button class="btn btn-primary">Upload Video</button></a>
+        {%endif%}
+     </div>
+     
+</div>
+{%endblock%}
+{%block script%}
+<script>
+function remove_uservideo(event,url){
+event.preventDefault();
+$.ajax({
+    type:'GET',
+    url:url,
+    dataType:'json',
+    success:function(response){
+      if(response.success){
+       let target=event.target.closest('.user-video-content');
+       if(target){
+          target.remove();
+       }
+      }
+      else{
+        $('#alert-ajax').empty();
+        $.each(response.messages,function(index,message){
+        var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+   ${message.message}
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+  </div>`;
+  $('#alert-ajax').append(message_div);
+        });
+      }
+    }
+});
+}
+</script>
+{%endblock%}

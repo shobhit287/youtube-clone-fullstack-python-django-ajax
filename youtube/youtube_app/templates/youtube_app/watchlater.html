@@ -1,0 +1,93 @@
+{%extends 'youtube_app/basic.html'%}
+{%load humanize%}
+{%load static%}
+{%block title%}Watch Later{%endblock%}
+{%block css%}
+<link rel="stylesheet" href="{%static 'css/watchlater.css'%}">
+{%endblock%}
+{%block watchlater%}
+<div class="content-watch-later">
+    <div class="messages">
+    {%if messages%}
+    {%for message in messages%}
+    <div id="alert-ajax">
+   
+     </div>
+     {%endfor%}
+     {%endif%} 
+     </div>
+  
+    
+     <div class="content-later-videos">
+        <div>
+            <p style="font-size:20px; ">• &nbsp;Watch Later Videos:</p>
+         </div>
+        {%if videos%}
+    {%for watchlater in videos%}
+
+        <div class="later-content" data-href="/youtube/video/{{watchlater.videos.video_id}}" >
+            
+            <div class="img-video">
+                <a href="/youtube/video/{{watchlater.videos.video_id}}"><img src="{{watchlater.videos.video_thumbnail.url}}"></a>
+                <p>{{watchlater.videos.video_duration}}</p>
+            </div>
+            <div class="right-content-later">
+                <div class="later-content-title">
+                    <a href="/youtube/video/{{watchlater.videos.video_id}}"><p>{{watchlater.videos.video_title}}</p></a>
+                </div>
+                <div class="later-meta-stuff">
+                    <img src="{%static 'img/user.png'%}">
+                    <p>{{watchlater.videos.video_channelname}}</p> 
+                    <img class="channel-verify-later" src="{%static 'img/verify.png'%}">
+                </div>
+                <div class="later-meta-stuff-2">
+                    <p>{{watchlater.videos.video_views}} views</p>
+                    <p class="time-later">{{watchlater.videos.video_timestamp|naturaltime|truncatechars:"6" }} ago </p>
+                    <a href="/youtube/watchlater/remove/{{watchlater.videos.video_id}}" onclick="remove_video(event,'/youtube/watchlater/remove/{{watchlater.videos.video_id}}')"><button type="button" class="btn btn-secondary btn-prevent" >Remove</button></a>
+                </div>
+            </div>  
+        </div>
+        {%endfor%}
+        {%else%}
+        <div class="no-video"><p>Sorry, No videos Found</p></div>
+        {%endif%}
+     </div>
+     
+</div>
+
+{%endblock%}
+{%block script%}
+<script>
+      function remove_video(event, url) {
+        event.preventDefault();
+    
+  
+        $.ajax({
+          type: "GET",
+          url: url,
+          dataType: 'json',
+          success: function (response) {
+            if (response.success) {
+              const videocard = event.target.closest('.later-content');
+              if (videocard) {
+                videocard.remove();
+              }}
+              else{
+                $('#alert-ajax').empty();
+                $.each(response.messages,function(index,message){
+                var message_div=` <div class="alert alert-${message.tags} alert-dismissible fade show" role="alert" id="closealert">
+           ${message.message}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>`;
+          $('#alert-ajax').append(message_div);
+                });
+            }
+            }
+        });
+      }
+  </script>
+  
+
+{%endblock%}

@@ -1,0 +1,131 @@
+.history-content::-webkit-scrollbar-thumb{
+    background: #717171;
+}
+.history-content{
+    display: flex;
+    max-height: 80vh;
+    overflow-y: scroll;
+    flex-direction: row;
+    justify-content:flex-start;
+    width:100vw !important;
+    padding-left:20px;
+}
+.history-videos{
+    display: flex;
+    flex-direction: column;
+    padding-block:15px;
+    gap:5px;
+}
+.history-content p{
+   background: transparent;
+}
+
+.history-video-content{
+    display: flex;
+    flex-direction: row;
+    gap:20px;
+    padding:20px;
+    
+}
+.history-video-content:hover{
+    background-color: #322e2e;
+    border-radius: 20px;
+    }
+
+.img-video p{
+    width:14%;
+    position: relative;
+    left:87%;
+    bottom: 11%;
+    border:solid black !important;
+    background: black !important;;
+}
+.img-video img{
+    width: 300px;;
+    border-radius: 15px;
+}
+.img-video{
+    background: transparent;
+}
+.right-history{
+    display: flex;
+    flex-direction: column;
+    margin-top: 2%;
+    background: transparent;
+    
+}
+.history-meta-stuff{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap:5%;
+    background: transparent;
+    white-space: nowrap;
+}
+.history-meta-stuff p{
+   position: relative;
+   top:20%;
+   right: 2%;
+}
+.history-meta-stuff img{
+    width:38px;
+    height:38px;
+    background: transparent;
+}
+.history-meta-stuff-2{
+    display: flex;
+    flex-direction: row;
+    background: transparent;
+    white-space: nowrap;
+    margin-top: 3%;
+    gap:5%;
+    
+}
+
+.channel-verify-later{
+    width:20px !important;
+    height:20px !important;
+}
+.history-content-title{
+    background: transparent;
+}
+.btn-prevent{
+    height:40px !important;
+}
+.clear-history{
+display: flex;
+flex-direction: row;
+align-items: center;
+flex-wrap: wrap;
+justify-content: space-between;
+width:80vw !important;
+}
+.clear-history button{
+    color:#fff;
+    padding:10px 20px;
+    margin-bottom: 1%;
+    border: #3ea6ff;
+    border-radius: 10px;
+    background-color: #3ea6ff;
+}
+@media only screen and (max-width:630px) {
+    .img-video img{
+        width: 200px;
+        border-radius: 15px;
+    }
+}
+@media only screen and (max-width:775px) {
+    .clear-history{
+        margin-top:5%;
+    }
+}
+@media only screen and (max-width:509px) {
+    .history-content{
+        font-size: 10px;
+    }
+    .img-video img{
+        width: 100px;
+        border-radius: 15px;
+    }
+   
+}

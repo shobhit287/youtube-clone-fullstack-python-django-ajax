@@ -1,0 +1,78 @@
+{%extends 'youtube_app/basic.html'%}
+{%load static%}
+{%block title%}Upload Video{%endblock%}
+{%block css%}
+<style>
+    .user-form:hover::-webkit-scrollbar-thumb{
+        background:#717171;
+    }
+    .user-form{
+        width: 100vmax;
+        overflow-y: scroll;
+        padding-bottom: 20px;
+        padding-left:10%;
+        max-height:90vh ;  
+    }
+    .sidebar{
+        position: absolute;
+        max-height:87vh;
+    }
+    .user-form form{
+        width:80%;
+        
+    }
+    .user-form h3{
+        font-size: 20px;
+    }
+   
+    .user_upload_form{
+        display:flex;
+        flex-direction: column;
+        padding:5px;
+    }
+    .user_upload_form input,.user_upload_form textarea{
+        color:#fff;
+        width:100%;
+    }
+    .user_upload_form input,.user_upload_form textarea{
+        border:solid 0.2px #fff;
+        padding:10px;
+    }
+    .user_upload_form textarea{
+        height: 142px;
+    }
+    .user_upload_form div{
+        padding-block: 10px;
+    }
+    .user_upload_form div label{
+        color:#fff;
+        font-size:17px;
+    }
+    .user_upload_form button{
+        background-color: #3ea6ff;
+        border-radius: 20px;
+        border: solid 1px #3ea6ff;
+        padding:10px 15px;
+    }
+    .user_upload_form button:hover{
+        background-color: #2074bd;
+
+    }
+    #id_video_thumbnail,#id_video_videofile{
+        border:none
+    }
+    
+</style>
+{%endblock%}
+{%block user_section%}
+<div class="user-form">
+<h3> Video Details:</h3>
+<form action="/youtube/user-upload/submit" method="POST" enctype="multipart/form-data" class="user_upload_form">
+{%csrf_token%}
+{{form.as_p}}         
+<div class="submit-button">
+ <button type="submit">Upload Video</button>
+</div>
+</form>
+</div>
+{%endblock%}

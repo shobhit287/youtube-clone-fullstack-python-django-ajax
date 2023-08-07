@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load custom_tags %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+    {%load static%}
+    <link rel="stylesheet" href="{%static 'css/basic.css'%}">
+    <link rel="icon" type="image/png" href="{%static 'img/logo.png'%}">
+    {%block css%}{%endblock%}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/6ff5ef7611.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js" ></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet">
+    <title>{%block title%}Youtube{%endblock%}</title>
+</head>
+<body>
+ <div class="navbar">
+<div class="logo-container">
+  <div class="logo-hamburger">
+    <i class="fa-solid fa-bars" id="hamburger-open-close" onclick="hamburger()" ></i>
+    <a href="/"><img src="{%static 'img/logo.png'%}"></a>
+    <a href="/"><h3>YouTube</h3></a>
+  </div>
+</div>
+<div class="search-container">
+    <form action="/youtube/search/query" method="GET">
+        <input type="text" name="search" id="search" autocomplete="off"
+        placeholder="Search" >
+        <div class="search-result">
+            <ul id="search-suggestions">
+                
+            </ul></div>
+        <button type="submit"><i class="fa-solid fa-magnifying-glass" ></i></button>
+    </form>
+</div>
+<div class="profile-container">
+       {% if user.is_authenticated%}
+       <a href="/youtube/user-upload"><i class="fa-solid fa-upload" ></i></a>
+       <div class="dropdown">
+           <img src="{%static 'img/user.png'%}" class=" dropdown-toggle"  id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+        <div class="dropdown-menu" id="logo-dropdown" aria-labelledby="dropdownMenuButton">
+          <h5 class="dropdown-item">Welcome ,{{user.first_name}}</h5>
+          <a class="dropdown-item" href="/youtube/user-channel/videos">My Channel</a>
+          <a class="dropdown-item" href="/youtube/user-upload">Upload Video</a>
+          <a class="dropdown-item" href="/youtube/logout">Logout</a>
+        </div>
+      </div>
+        {%else%}
+    <button class="signin" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="fa-solid fa-user"></i>Sign in</button>
+    {%endif%}
+    
+</div>
+ </div>
+ 
+ <!--signup Modal -->
+<div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="signupModalLabel">Sign Up</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/youtube/signup" method="post">{% csrf_token %}
+            <div class="mb-3">
+              <label for="exampleFormControlInput1" class="form-label">First Name:</label>
+              <input type="text" class="form-control" name="signupfname" required  placeholder="Enter First Name">
+            </div>
+            <div class="mb-3">
+              <label for="exampleFormControlInput1" class="form-label">Last Name:</label>
+              <input type="text" class="form-control" name="signuplname" required  placeholder="Enter Last Name">
+            </div>
+  
+          <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Username:</label>
+            <input type="text" class="form-control" name="username" required  placeholder="Choose Username(alphanumeric only)">
+          </div>
+          <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Email address:</label>
+            <input type="email" class="form-control" name="email"  placeholder="name@example.com" required>
+          </div>
+          <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Password:</label>
+            <input type="password" class="form-control"  name="password" placeholder="Enter Your Password" required>
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Signup</button>
+          </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+            Login
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<!--login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="loginModalLabel">Sign Up</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <form action="/youtube/login" method="post">{%csrf_token%}
+            <label for="exampleFormControlInput1" class="form-label">Username:</label>
+            <input type="text" class="form-control" name="loginusername" required  placeholder="Username">
+          
+          <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Password:</label>
+            <input type="password" class="form-control"  name="loginpassword" placeholder="Enter Your Password" required>
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
+      </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">
+            Signup
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- body content -->
+
+<div class="body-container">
+    
+    <div class="sidebar" >
+        <div class="sidebar-items">
+            <a href="/" class="sidebar-item"><i class="fa-solid fa-house"></i>Home</a>
+            <hr>
+            <a href="/youtube/history" class="sidebar-item"><i class="ri-links-line"></i>History</a>
+            <a href="/youtube/watchlater-list" class="sidebar-item"><i class="fa-solid fa-video"></i>Watch Later</a>
+            <hr>
+            <h4>Explore:</h4>
+            <a href="/youtube/category/Music" class="sidebar-item"><i class="fa-solid fa-music"></i>Music</a>
+            <a href="/youtube/category/Body-Building" class="sidebar-item"><i class="fa-solid fa-dumbbell"></i>Workout</a>
+            <a href="/youtube/category/Computer Programming" class="sidebar-item"><i class="fa-solid fa-laptop"></i>Programming</a>
+            <a href="/youtube/category/News" class="sidebar-item"><i class="fa-solid fa-newspaper"></i>News</a>
+            <a href="/youtube/category/Ajax" class="sidebar-item"><i class="fa-solid fa-chalkboard"></i>Learning</a>
+            <hr>
+               {%if user.is_authenticated%}
+                <a href="/youtube/user-channel/videos"  class="sidebar-item"><i class="fa-solid fa-tv"></i>Your Channel</a>
+                {%else%}
+               <span class="side-login"><i class="fa-solid fa-user"></i>
+                <button class="signin" data-bs-toggle="modal" data-bs-target="#loginModal">Sign in</button></span>
+                {%endif%}
+            </div>
+        </div>
+       
+        {%block playback%}{%endblock%}
+     {%block index%}{%endblock%}
+     {%block watchlater%}{%endblock%}
+     {%block history%}{%endblock%}
+     {%block category%}{%endblock%}
+     {%block user_section%}{%endblock%}
+    
+
+      </div>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="{%static 'js/basic.js'%}"></script>
+{%block script%}
+
+
+{%endblock%}
+</body>
+</html>
